@@ -1,59 +1,33 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import FluidTank from "@/components/FluidTank";
 import ParticleModel from "@/components/ParticleModel";
-
-const objects = [
-  { emoji: "🎈", label: "Balloon", density: 0.9 },
-  { emoji: "🪵", label: "Wood", density: 600 },
-  { emoji: "🧊", label: "Ice", density: 917 },
-  { emoji: "🦆", label: "Duck", density: 850 },
-  { emoji: "🪨", label: "Stone", density: 2500 },
-  { emoji: "⚙️", label: "Steel", density: 7800 },
-];
-
-const mediums = [
-  { key: "air" as const, label: "Air", emoji: "🌬️" },
-  { key: "freshwater" as const, label: "Fresh Water", emoji: "💧" },
-  { key: "saltwater" as const, label: "Salt Water", emoji: "🌊" },
-];
 
 const Index = () => {
   const [temp, setTemp] = useState(20);
-  const [objIdx, setObjIdx] = useState(2);
-  const [medium, setMedium] = useState<"air" | "freshwater" | "saltwater">("freshwater");
-
-  const obj = objects[objIdx];
   const tempRatio = (temp + 20) / 120;
   const hue = 210 - tempRatio * 210;
 
+  // Air density decreases with temperature
+  const airDensity = 1.293 * (273.15 / (273.15 + temp));
+  const balloonDensity = 0.9; // lighter than cool air, heavier than very hot air envelope
+  const floats = balloonDensity < airDensity;
+
+  // Balloon position: floats high when air is cold/dense, sinks when air is hot/thin
+  const yPercent = floats ? 10 + (balloonDensity / airDensity) * 30 : 55 + Math.min(25, (balloonDensity / airDensity - 1) * 40);
+
   return (
-    <div className="min-h-screen bg-background px-4 py-6 max-w-lg mx-auto space-y-5">
-      {/* Title */}
+    <div className="min-h-screen bg-background px-4 py-6 max-w-md mx-auto space-y-5">
       <div>
-        <h1 className="font-heading text-xl font-bold text-foreground">🔬 Density & Buoyancy Lab</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">See how temperature affects density and floating/sinking</p>
+        <h1 className="font-heading text-xl font-bold text-foreground">🎈 Balloon in Air</h1>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          How does air temperature affect a balloon's buoyancy?
+        </p>
       </div>
 
-      {/* Medium picker */}
-      <div className="flex gap-1 bg-muted p-1 rounded-lg">
-        {mediums.map((m) => (
-          <button
-            key={m.key}
-            onClick={() => setMedium(m.key)}
-            className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-all ${
-              medium === m.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            {m.emoji} {m.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Temperature */}
+      {/* Temperature slider */}
       <div className="space-y-1">
         <div className="flex justify-between items-center">
-          <span className="text-xs font-medium text-muted-foreground">Temperature</span>
+          <span className="text-xs font-medium text-muted-foreground">Air Temperature</span>
           <span className="font-heading text-sm font-bold" style={{ color: `hsl(${hue},70%,50%)` }}>
             {temp}°C
           </span>
@@ -66,44 +40,79 @@ const Index = () => {
             background: `linear-gradient(to right, hsl(210,70%,55%), hsl(45,80%,55%), hsl(0,80%,55%))`,
           }}
         />
+        <div className="flex justify-between text-[10px] text-muted-foreground">
+          <span>-20°C</span>
+          <span>100°C</span>
+        </div>
       </div>
 
-      {/* Object picker */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {objects.map((o, i) => (
-          <motion.button
-            key={o.label}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setObjIdx(i)}
-            className={`shrink-0 flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg border text-center transition-colors ${
-              objIdx === i ? "border-primary bg-primary/10" : "border-border bg-card"
-            }`}
+      {/* Sky tank */}
+      <div
+        className="relative w-full h-72 rounded-xl overflow-hidden border border-border"
+        style={{
+          background: `linear-gradient(to bottom, 
+            hsla(${200 - tempRatio * 15}, ${50 + tempRatio * 15}%, ${80 - tempRatio * 15}%, 1), 
+            hsla(${200 - tempRatio * 15}, ${40 + tempRatio * 10}%, ${90 - tempRatio * 10}%, 1))`,
+        }}
+      >
+        {/* Heat shimmer at high temp */}
+        {temp > 50 && (
+          <motion.div
+            className="absolute inset-0 opacity-10"
+            animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
+            transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
+            style={{
+              background: "repeating-linear-gradient(0deg, transparent, hsla(30,80%,60%,0.1) 2px, transparent 4px)",
+            }}
+          />
+        )}
+
+        {/* Balloon */}
+        <motion.div
+          className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
+          animate={{ top: `${yPercent}%` }}
+          transition={{ type: "spring", stiffness: 30, damping: 10 }}
+        >
+          <motion.div
+            className="text-6xl select-none"
+            animate={{
+              rotate: floats ? [0, 4, -4, 0] : 0,
+              y: floats ? [0, -6, 0] : [0, 2, 0],
+            }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
           >
-            <span className="text-lg">{o.emoji}</span>
-            <span className="text-[9px] font-medium text-foreground">{o.label}</span>
-          </motion.button>
-        ))}
+            🎈
+          </motion.div>
+        </motion.div>
+
+        {/* Status */}
+        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+          <div className="bg-card/80 backdrop-blur-sm rounded-lg px-2.5 py-1.5 text-[11px] space-y-0.5">
+            <div className="text-muted-foreground">
+              Air ρ = <span className="font-semibold text-foreground">{airDensity.toFixed(3)}</span> kg/m³
+            </div>
+            <div className="text-muted-foreground">
+              Balloon ρ = <span className="font-semibold text-foreground">{balloonDensity.toFixed(3)}</span> kg/m³
+            </div>
+          </div>
+          <motion.div
+            className="rounded-full px-2.5 py-1 text-xs font-bold text-primary-foreground"
+            animate={{ backgroundColor: floats ? "hsl(160,60%,40%)" : "hsl(0,60%,50%)" }}
+          >
+            {floats ? "⬆ RISES" : "⬇ FALLS"}
+          </motion.div>
+        </div>
       </div>
 
-      {/* Tank */}
-      <FluidTank
-        temperature={temp}
-        medium={medium}
-        objectDensity={obj.density}
-        objectLabel={obj.label}
-        objectEmoji={obj.emoji}
-      />
+      {/* Particle model */}
+      <ParticleModel temperature={temp} medium="air" />
 
-      {/* Particle Model */}
-      <ParticleModel temperature={temp} medium={medium} />
-
-      {/* Key facts */}
+      {/* Explanation */}
       <div className="bg-card rounded-xl border border-border p-3 text-[11px] text-muted-foreground space-y-1">
-        <p className="font-heading font-semibold text-foreground text-xs">💡 Key ideas</p>
-        <p>• <strong>Hot</strong> → particles move faster & spread out → lower density</p>
-        <p>• <strong>Cold</strong> → particles slow down & pack tight → higher density</p>
-        <p>• Objects <strong>float</strong> when they're less dense than the medium</p>
-        <p>• Salt water is denser → more things float in it</p>
+        <p className="font-heading font-semibold text-foreground text-xs">💡 What's happening</p>
+        <p>• <strong>Cold air</strong> → particles packed tight → dense air → balloon rises</p>
+        <p>• <strong>Hot air</strong> → particles spread out → thin air → balloon struggles to float</p>
+        <p>• The balloon floats when the surrounding air is <strong>denser</strong> than it</p>
       </div>
     </div>
   );
