@@ -176,7 +176,7 @@ const Index = () => {
       </div>
 
       {/* Particle model */}
-      <ParticleModel temperature={temp} medium="air" />
+      <ParticleModel temperature={temp} gasId={gasId} />
 
       {/* Explanation */}
       <div className="bg-card rounded-xl border border-border p-3 text-[11px] text-muted-foreground space-y-1">
