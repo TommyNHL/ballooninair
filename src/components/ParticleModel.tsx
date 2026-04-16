@@ -13,6 +13,7 @@ interface Particle {
   vy: number;
   angle: number;
   angularVel: number;
+  shapeOverride?: MoleculeShape;
 }
 
 type MoleculeShape =
@@ -21,7 +22,13 @@ type MoleculeShape =
   | { type: "v-shape"; radius: number; gap: number; angle: number; colors: [string, string] }
   | { type: "linear3"; radius: number; gap: number; colors: [string, string] };
 
-const MOLECULE_SHAPES: Record<string, { shape: MoleculeShape; label: string }> = {
+interface MoleculeEntry {
+  shape: MoleculeShape;
+  label: string;
+  mix?: { shape: MoleculeShape; ratio: number }[];
+}
+
+const MOLECULE_SHAPES: Record<string, MoleculeEntry> = {
   hydrogen: {
     label: "H₂ — diatomic",
     shape: { type: "dumbbell", radius: 4, gap: 7, color: "hsla(0, 0%, 85%, 0.9)" },
@@ -148,6 +155,16 @@ const ParticleModel = ({ temperature, gasId = "air" }: ParticleModelProps) => {
 
     const particles: Particle[] = [];
     for (let i = 0; i < 30; i++) {
+      let shapeOverride: MoleculeShape | undefined;
+      if (moleculeInfo.mix) {
+        const r = Math.random();
+        let cumulative = 0;
+        for (const m of moleculeInfo.mix) {
+          cumulative += m.ratio;
+          if (r < cumulative) { shapeOverride = m.shape; break; }
+        }
+        if (!shapeOverride) shapeOverride = moleculeInfo.mix[0].shape;
+      }
       particles.push({
         x: 20 + Math.random() * (W - 40),
         y: 20 + Math.random() * (H - 40),
@@ -155,6 +172,7 @@ const ParticleModel = ({ temperature, gasId = "air" }: ParticleModelProps) => {
         vy: (Math.random() - 0.5) * speed * 2,
         angle: Math.random() * Math.PI * 2,
         angularVel: (Math.random() - 0.5) * 0.05,
+        shapeOverride,
       });
     }
 
@@ -194,7 +212,7 @@ const ParticleModel = ({ temperature, gasId = "air" }: ParticleModelProps) => {
       }
 
       for (const p of particles) {
-        drawMolecule(ctx, p, moleculeInfo.shape);
+        drawMolecule(ctx, p, p.shapeOverride || moleculeInfo.shape);
 
         if (temperature > 60) {
           ctx.beginPath();
