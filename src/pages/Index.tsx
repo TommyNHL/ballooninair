@@ -58,6 +58,29 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Gas selector */}
+      <div className="space-y-1">
+        <span className="text-xs font-medium text-muted-foreground">Gas inside balloon</span>
+        <div className="flex flex-wrap gap-1.5">
+          {gases.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => setGasId(g.id)}
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors border ${
+                gasId === g.id
+                  ? "border-primary bg-primary/15 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          {gas.name} — base density: {gas.density} kg/m³
+        </p>
+      </div>
+
       {/* Sky tank */}
       <div
         className="relative w-full h-80 rounded-xl overflow-hidden border border-border"
