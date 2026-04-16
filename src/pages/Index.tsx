@@ -4,6 +4,7 @@ import TemperatureSlider from "@/components/TemperatureSlider";
 import FluidTank from "@/components/FluidTank";
 import DensityGraph from "@/components/DensityGraph";
 import ObjectSelector, { labObjects, type LabObject } from "@/components/ObjectSelector";
+import ParticleModel from "@/components/ParticleModel";
 
 const Index = () => {
   const [temperature, setTemperature] = useState(20);
@@ -60,6 +61,9 @@ const Index = () => {
                 objectEmoji={selectedObject.emoji}
               />
             </motion.div>
+
+            {/* Particle Model */}
+            <ParticleModel temperature={temperature} medium={activeTab} />
 
             {/* Graph */}
             <DensityGraph temperature={temperature} medium={activeTab} />
