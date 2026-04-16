@@ -36,7 +36,11 @@ const MOLECULE_SHAPES: Record<string, { shape: MoleculeShape; label: string }> =
   },
   air: {
     label: "Air — N₂ + O₂ mix",
-    shape: { type: "dumbbell", radius: 4.5, gap: 8, color: "hsla(200, 50%, 65%, 0.85)" },
+    shape: { type: "dumbbell", radius: 4.5, gap: 8, color: "hsla(210, 60%, 65%, 0.9)" },
+    mix: [
+      { shape: { type: "dumbbell", radius: 4.5, gap: 8, color: "hsla(210, 60%, 65%, 0.9)" } as MoleculeShape, ratio: 0.78 },
+      { shape: { type: "dumbbell", radius: 4.5, gap: 8, color: "hsla(0, 60%, 60%, 0.9)" } as MoleculeShape, ratio: 0.22 },
+    ],
   },
   oxygen: {
     label: "O₂ — diatomic",
