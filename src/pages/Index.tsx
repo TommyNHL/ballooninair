@@ -48,11 +48,13 @@ const Index = () => {
 
       {/* Sky tank */}
       <div
-        className="relative w-full h-72 rounded-xl overflow-hidden border border-border"
+        className="relative w-full h-80 rounded-xl overflow-hidden border border-border"
         style={{
           background: `linear-gradient(to bottom, 
-            hsla(${200 - tempRatio * 15}, ${50 + tempRatio * 15}%, ${80 - tempRatio * 15}%, 1), 
-            hsla(${200 - tempRatio * 15}, ${40 + tempRatio * 10}%, ${90 - tempRatio * 10}%, 1))`,
+            hsla(${200 - tempRatio * 15}, ${50 + tempRatio * 15}%, ${80 - tempRatio * 15}%, 1) 0%, 
+            hsla(${200 - tempRatio * 15}, ${40 + tempRatio * 10}%, ${90 - tempRatio * 10}%, 1) 65%,
+            hsla(195, 60%, 45%, 1) 65%,
+            hsla(210, 65%, 30%, 1) 100%)`,
         }}
       >
         {/* Heat shimmer at high temp */}
@@ -66,6 +68,29 @@ const Index = () => {
             }}
           />
         )}
+
+        {/* Sea level line */}
+        <div className="absolute left-0 right-0" style={{ top: "65%" }}>
+          <div className="w-full border-t border-dashed border-sky-200/50" />
+          <span className="absolute right-2 -top-4 text-[9px] font-medium text-sky-200/70 tracking-wide">
+            SEA LEVEL
+          </span>
+        </div>
+
+        {/* Waves */}
+        <motion.div
+          className="absolute left-0 right-0 overflow-hidden"
+          style={{ top: "64%", height: "4%" }}
+        >
+          <motion.div
+            className="w-[200%] h-full opacity-30"
+            animate={{ x: [0, "-50%"] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            style={{
+              background: "repeating-linear-gradient(90deg, transparent, hsla(195,70%,70%,0.4) 20px, transparent 40px)",
+            }}
+          />
+        </motion.div>
 
         {/* Balloon */}
         <motion.div
