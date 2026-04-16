@@ -2,17 +2,29 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import ParticleModel from "@/components/ParticleModel";
 
+const gases = [
+  { id: "hydrogen", label: "H₂", name: "Hydrogen", density: 0.0899 },
+  { id: "helium", label: "He", name: "Helium", density: 0.164 },
+  { id: "nitrogen", label: "N₂", name: "Nitrogen", density: 1.251 },
+  { id: "air", label: "Air", name: "Air", density: 1.293 },
+  { id: "oxygen", label: "O₂", name: "Oxygen", density: 1.429 },
+  { id: "ozone", label: "O₃", name: "Ozone", density: 2.144 },
+  { id: "co2", label: "CO₂", name: "Carbon Dioxide", density: 1.977 },
+];
+
 const Index = () => {
   const [temp, setTemp] = useState(20);
+  const [gasId, setGasId] = useState("helium");
+  const gas = gases.find((g) => g.id === gasId)!;
   const tempRatio = (temp + 20) / 120;
   const hue = 210 - tempRatio * 210;
 
-  // Air density decreases with temperature
+  // Outside air density at temperature
   const airDensity = 1.293 * (273.15 / (273.15 + temp));
-  const balloonDensity = 0.9; // lighter than cool air, heavier than very hot air envelope
+  // Balloon gas density also changes with temperature
+  const balloonDensity = gas.density * (273.15 / (273.15 + temp));
   const floats = balloonDensity < airDensity;
 
-  // Balloon position: floats high when air is cold/dense, sinks when air is hot/thin
   const yPercent = floats ? 10 + (balloonDensity / airDensity) * 30 : 55 + Math.min(25, (balloonDensity / airDensity - 1) * 40);
 
   return (
@@ -44,6 +56,29 @@ const Index = () => {
           <span>-20°C</span>
           <span>100°C</span>
         </div>
+      </div>
+
+      {/* Gas selector */}
+      <div className="space-y-1">
+        <span className="text-xs font-medium text-muted-foreground">Gas inside balloon</span>
+        <div className="flex flex-wrap gap-1.5">
+          {gases.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => setGasId(g.id)}
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-colors border ${
+                gasId === g.id
+                  ? "border-primary bg-primary/15 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:border-primary/40"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          {gas.name} — base density: {gas.density} kg/m³
+        </p>
       </div>
 
       {/* Sky tank */}
