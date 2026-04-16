@@ -57,6 +57,17 @@ const Index = () => {
             hsla(210, 65%, 30%, 1) 100%)`,
         }}
       >
+        {/* Altitude scale */}
+        <div className="absolute left-1.5 top-2 bottom-2 flex flex-col justify-between items-start pointer-events-none z-10">
+          {[10, 8, 6, 4, 2, 0, -2, -4].map((km, i) => (
+            <div key={km} className="flex items-center gap-1">
+              <div className="w-2 border-t" style={{ borderColor: km === 0 ? "hsla(195,70%,70%,0.6)" : "hsla(0,0%,100%,0.2)" }} />
+              <span className="text-[8px] font-mono" style={{ color: km === 0 ? "hsla(195,70%,70%,0.7)" : "hsla(0,0%,100%,0.3)" }}>
+                {km}km
+              </span>
+            </div>
+          ))}
+        </div>
         {/* Heat shimmer at high temp */}
         {temp > 50 && (
           <motion.div
